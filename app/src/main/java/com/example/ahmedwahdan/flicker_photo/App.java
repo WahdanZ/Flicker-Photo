@@ -1,11 +1,9 @@
 package com.example.ahmedwahdan.flicker_photo;
 
 import android.app.Application;
-import android.text.TextUtils;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
@@ -14,7 +12,6 @@ import com.google.gson.Gson;
  */
 
 public class App  extends Application{
-    private static final String TAG = App.class.getSimpleName();
     private static App mAppController ;
 
     private RequestQueue mRequestQueue;
@@ -39,10 +36,16 @@ public class App  extends Application{
 
 
 
-    public <T> void addToRequestQueue(Request<T> req) {
-        req.setTag(TAG);
+    public <T> void addToRequestQueue(Request<T> req , String  tag) {
+        req.setTag(tag);
         getRequestQueue().add(req);
 
+    }
+
+    public void cancelPendingRequests(String tag) {
+        if (mRequestQueue != null) {
+            mRequestQueue.cancelAll(tag);
+        }
     }
     public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
@@ -50,11 +53,6 @@ public class App  extends Application{
         }
 
         return mRequestQueue;
-    }
-    public void cancelPendingRequests(String tag) {
-        if (mRequestQueue != null) {
-            mRequestQueue.cancelAll(tag);
-        }
     }
 
 }

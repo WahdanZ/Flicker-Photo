@@ -7,10 +7,13 @@ import java.util.List;
 /**
  * Created by ahmedwahdan on 8/10/17.
  */
-
+/*
+*
+*
+* */
 public interface RequestListener {
      interface searchListener{
-        void onSearchResault(List<PhotoItem> photos);
+        void onSearchResult(List<PhotoItem> photos);
         void onError(String error);
     }
 }

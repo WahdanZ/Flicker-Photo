@@ -1,6 +1,5 @@
 package com.example.ahmedwahdan.flicker_photo;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
@@ -16,18 +15,18 @@ import java.util.List;
 public class SearchPresenterImp implements SearchPresenter {
 
     private  SearchActivityView searchView;
-    private  Context context;
+    private static String TAG = "SearchPresenter";
 
-    public SearchPresenterImp (Context context , SearchActivityView searchView){
-        this.context = context;
+     SearchPresenterImp (SearchActivityView searchView){
         this.searchView = searchView;
     }
     @Override
-    public List<PhotoItem> getPhotoByTag(String tag) {
+    public void getPhotoByTag(String tagSearch) {
+
         searchView.showLoading();
-        SearchRequest.index(tag, new RequestListener.searchListener() {
+        SearchRequest.index(tagSearch,TAG ,  new RequestListener.searchListener() {
             @Override
-            public void onSearchResault(List<PhotoItem> photos) {
+            public void onSearchResult(List<PhotoItem> photos) {
 
                 if (photos.size() > 0)
                     searchView.showPhotosByTag(photos);
@@ -41,6 +40,5 @@ public class SearchPresenterImp implements SearchPresenter {
 
             }
         });
-        return null;
     }
 }

@@ -1,6 +1,8 @@
 package com.example.ahmedwahdan.flicker_photo.model;
 
-public class PhotoItem{
+import java.io.Serializable;
+
+public class PhotoItem implements Serializable{
 	private String owner;
 	private String server;
 	private int ispublic;
