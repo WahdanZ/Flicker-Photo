@@ -5,6 +5,8 @@ package com.example.ahmedwahdan.flicker_photo;
  */
 
 public interface SearchPresenter {
-    void getPhotoByTag( String tag);
+    void getPhotosByTag(String tag);
+
+    void loadMorePhoto(int page);
 
 }

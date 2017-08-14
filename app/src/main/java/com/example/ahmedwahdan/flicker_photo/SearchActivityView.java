@@ -11,6 +11,7 @@ import java.util.List;
 public interface SearchActivityView {
     void showLoading();
     void hideLoading();
-    void showPhotosByTag(List<PhotoItem> photoItems);
+
+    void showPhotosByTag(List<PhotoItem> photoItems, boolean isLoadingMore);
 
     }

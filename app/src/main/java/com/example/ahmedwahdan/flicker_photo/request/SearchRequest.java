@@ -1,5 +1,7 @@
 package com.example.ahmedwahdan.flicker_photo.request;
 
+import android.util.Log;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -13,17 +15,19 @@ import com.google.gson.Gson;
  */
 
 public class SearchRequest {
+    private static final String TAG = SearchRequest.class.getSimpleName();
     private static App mAppController = App.getInstance();
     private static Gson mGson = mAppController.getGson();
 
-    public static void index(String searchTag , String tag,  final RequestListener.searchListener listener ){
+    public static void index(String searchTag, String tag, int page, final RequestListener.searchListener listener) {
         mAppController.cancelPendingRequests(tag);
-        StringRequest request = new StringRequest(Request.Method.GET, Routs.baseUrl+searchTag,
+        String url = Routs.baseUrl + searchTag + "&page=" + page;
+        Log.d(TAG, "URL: " + url);
+        StringRequest request = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String >() {
 
                     @Override
                     public void onResponse(String response) {
-
                         searchRes res = mGson.fromJson(response, searchRes.class);
                         if (res != null)
                         listener.onSearchResult(res.getPhotos().getPhoto());

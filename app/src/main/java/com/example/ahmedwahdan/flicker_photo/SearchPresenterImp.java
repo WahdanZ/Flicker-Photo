@@ -12,33 +12,42 @@ import java.util.List;
  * Created by ahmedwahdan on 8/10/17.
  */
 
-public class SearchPresenterImp implements SearchPresenter {
+public class SearchPresenterImp implements SearchPresenter, RequestListener.searchListener {
 
-    private  SearchActivityView searchView;
     private static String TAG = "SearchPresenter";
+    String tagSearch;
+    private SearchActivityView searchView;
+    private boolean loadMore;
 
      SearchPresenterImp (SearchActivityView searchView){
         this.searchView = searchView;
     }
     @Override
-    public void getPhotoByTag(String tagSearch) {
-
+    public void getPhotosByTag(String tagSearch) {
+        loadMore = false;
+        this.tagSearch = tagSearch;
         searchView.showLoading();
-        SearchRequest.index(tagSearch,TAG ,  new RequestListener.searchListener() {
-            @Override
-            public void onSearchResult(List<PhotoItem> photos) {
+        SearchRequest.index(tagSearch, TAG, 1, this);
+    }
 
-                if (photos.size() > 0)
-                    searchView.showPhotosByTag(photos);
-                    searchView.hideLoading();
-            }
+    @Override
+    public void loadMorePhoto(int page) {
+        Log.d(TAG, "loadMore Page Number :" + page);
+        loadMore = true;
+        searchView.showLoading();
+        SearchRequest.index(tagSearch, TAG, page, this);
 
-            @Override
-            public void onError(String error) {
-                Log.d("SearchActivity", error);
-                searchView.hideLoading();
+    }
 
-            }
-        });
+
+    @Override
+    public void onSearchResult(List<PhotoItem> photos) {
+        searchView.hideLoading();
+        searchView.showPhotosByTag(photos, loadMore);
+    }
+
+    @Override
+    public void onError(String error) {
+
     }
 }
