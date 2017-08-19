@@ -1,14 +1,16 @@
-package com.example.ahmedwahdan.flicker_photo.request;
+package com.example.ahmedwahdan.flicker_photo.network;
 
 import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.ahmedwahdan.flicker_photo.App;
-import com.example.ahmedwahdan.flicker_photo.model.searchRes;
+import com.example.ahmedwahdan.flicker_photo.network.model.PhotoSearch;
 import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 /**
  * Created by ahmedwahdan on 8/10/17.
@@ -23,17 +25,19 @@ public class SearchRequest {
         mAppController.cancelPendingRequests(tag);
         String url = Routs.baseUrl + searchTag + "&page=" + page;
         Log.d(TAG, "URL: " + url);
-        StringRequest request = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String >() {
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,null,
+                new Response.Listener<JSONObject>() {
 
                     @Override
-                    public void onResponse(String response) {
-                        searchRes res = mGson.fromJson(response, searchRes.class);
+                    public void onResponse(JSONObject response) {
+
+                        PhotoSearch res = mGson.fromJson(String.valueOf(response), PhotoSearch.class);
                         if (res != null)
-                        listener.onSearchResult(res.getPhotos().getPhoto());
-
-
+                            listener.onSearchResult(res.getPhotos().getPhoto());
+                        else
+                            listener.onError("Failed to fetch data! ");
                     }
+
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {

@@ -1,6 +1,6 @@
-package com.example.ahmedwahdan.flicker_photo.model;
+package com.example.ahmedwahdan.flicker_photo.network.model;
 
-public class searchRes {
+public class PhotoSearch {
 	private String stat;
 	private Photos photos;
 
@@ -23,7 +23,7 @@ public class searchRes {
 	@Override
  	public String toString(){
 		return 
-			"searchRes{" +
+			"PhotoSearch{" +
 			"stat = '" + stat + '\'' + 
 			",photos = '" + photos + '\'' + 
 			"}";

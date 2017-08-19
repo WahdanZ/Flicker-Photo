@@ -1,15 +1,16 @@
-package com.example.ahmedwahdan.flicker_photo;
+package com.example.ahmedwahdan.flicker_photo.ui.search;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.R;
+import com.example.ahmedwahdan.flicker_photo.network.model.PhotoItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -24,8 +25,8 @@ import butterknife.ButterKnife;
 public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = PhotoAdapter.class.getSimpleName();
-    private final int VIEW_ITEM = 1;
-    private final int VIEW_Divide = 0;
+    public final static int VIEW_ITEM = 1;
+    public  final static int VIEW_DIVIDE = 0;
     private  Context context;
     private  List<PhotoItem> photoItems;
     private int page = 1;
@@ -37,12 +38,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_ITEM) {
-            Log.d(TAG, "onCreateViewHolder: " + "VIEW_ITEM");
-
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.photo_item, parent, false);
             return new ViewHolder(v);
-        } else if (viewType == VIEW_Divide) {
-            Log.d(TAG, "onCreateViewHolder: " + "VIEW_Divide");
+        } else if (viewType == VIEW_DIVIDE) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.divider_page_item, parent, false);
             return new DividerNumberViewHolder(v);
         }
@@ -52,14 +50,18 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof ViewHolder && position < photoItems.size()) {
+        if (holder instanceof ViewHolder ) {
             PhotoItem item = photoItems.get(position);
             Log.d(TAG, item.getGetURl());
             Picasso.with(context)
                     .load(item.getGetURl())
+                    .fit()
+                    .centerCrop()
                     .placeholder(R.drawable.progress_animation)
                     .into(((ViewHolder) holder).photoImage);
-        } else {
+        }
+        else if (holder instanceof DividerNumberViewHolder){
+            ((DividerNumberViewHolder) holder).pageNumber.setText(""+(position/21));
 
         }
 
@@ -67,15 +69,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-//         if( position % 20 == 0 && position > 0){
-//             Log.d(TAG, "getItemViewType: " +"VIEW_PROG");
-//             page ++;
-//             return VIEW_PROG;
-//         }else {
-        Log.d(TAG, "getItemViewType: " + "VIEW_ITEM");
+        return ( position % 21 == 0 && position > 0) ? VIEW_DIVIDE : VIEW_ITEM;
 
-        return VIEW_ITEM;
-        //     }
 
     }
 
@@ -86,9 +81,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
     @Override
     public int getItemCount() {
-        int count = (photoItems.size() + page);
-        Log.d(TAG, "count:" + count);
-        return count;
+        return photoItems.size() ;
     }
 
     public void loadMorePhoto(List<PhotoItem> photosList) {
@@ -96,12 +89,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.photoItems.addAll(photosList);
         int newAdapterSize = this.photoItems.size();
         Log.d(TAG, "loadMorePhoto: currentAdapterSize " + currentAdapterSize + " newAdapterSize " + newAdapterSize);
-        notifyItemInserted(photoItems.size() - 1);
+        page++;
+        notifyItemInserted(photoItems.size() +page);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.photo_id)
-        @NonNull
         ImageView photoImage ;
          ViewHolder(View itemView) {
             super(itemView);
@@ -111,8 +104,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public static class DividerNumberViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.page_number)
+        TextView pageNumber;
         public DividerNumberViewHolder(View itemView) {
             super(itemView);
+            ButterKnife.bind(this,itemView);
         }
     }
 }

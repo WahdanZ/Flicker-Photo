@@ -1,4 +1,4 @@
-package com.example.ahmedwahdan.flicker_photo;
+package com.example.ahmedwahdan.flicker_photo.ui.helper;
 
 /**
  * Created by HP-PC on 8/12/2017.
@@ -10,11 +10,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 
+import com.example.ahmedwahdan.flicker_photo.ui.search.PhotoAdapter;
+
 public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnScrollListener {
     RecyclerView.LayoutManager mLayoutManager;
     // The minimum amount of items to have below your current scroll position
     // before loading more.
-    private int visibleThreshold = 5;
+    private int visibleThreshold = 4;
     // The current offset index of data you have loaded
     private int currentPage = 0;
     // The total number of items in the dataset after the last load
@@ -24,8 +26,8 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
     // Sets the starting page index
     private int startingPageIndex = 0;
     // Sets the  footerViewType
-    private int defaultNoFooterViewType = -1;
-    private int footerViewType = -1;
+    private int defaultNoFooterViewType = PhotoAdapter.VIEW_ITEM;
+    private int footerViewType = PhotoAdapter.VIEW_DIVIDE;
     private String mTag = "scroll-listener";
 
     public EndlessRecyclerViewScrollListener(LinearLayoutManager layoutManager) {

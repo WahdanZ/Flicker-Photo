@@ -1,4 +1,4 @@
-package com.example.ahmedwahdan.flicker_photo;
+package com.example.ahmedwahdan.flicker_photo.ui.search;
 
 /**
  * Created by ahmedwahdan on 8/10/17.

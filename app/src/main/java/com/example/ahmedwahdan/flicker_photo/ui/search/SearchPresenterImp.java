@@ -1,10 +1,10 @@
-package com.example.ahmedwahdan.flicker_photo;
+package com.example.ahmedwahdan.flicker_photo.ui.search;
 
 import android.util.Log;
 
-import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
-import com.example.ahmedwahdan.flicker_photo.request.RequestListener;
-import com.example.ahmedwahdan.flicker_photo.request.SearchRequest;
+import com.example.ahmedwahdan.flicker_photo.network.RequestListener;
+import com.example.ahmedwahdan.flicker_photo.network.SearchRequest;
+import com.example.ahmedwahdan.flicker_photo.network.model.PhotoItem;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class SearchPresenterImp implements SearchPresenter, RequestListener.sear
     private SearchActivityView searchView;
     private boolean loadMore;
 
-     SearchPresenterImp (SearchActivityView searchView){
+     public SearchPresenterImp(SearchActivityView searchView){
         this.searchView = searchView;
     }
     @Override

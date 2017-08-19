@@ -6,6 +6,10 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.jakewharton.picasso.OkHttp3Downloader;
+import com.squareup.picasso.Picasso;
+
+import okhttp3.OkHttpClient;
 
 /**
  * Created by ahmedwahdan on 8/10/17.
@@ -16,10 +20,20 @@ public class App  extends Application{
 
     private RequestQueue mRequestQueue;
     private Gson mGson;
+    private Picasso picasso;
+
     @Override
     public void onCreate() {
         super.onCreate();
         mAppController =this;
+        OkHttpClient client = new OkHttpClient.Builder().build();
+         picasso = new Picasso.Builder(this)
+                     .loggingEnabled(true)
+                     .downloader(new OkHttp3Downloader(client))
+                     .build();
+
+        Picasso.setSingletonInstance(picasso);
+
 
     }
 

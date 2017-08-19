@@ -1,4 +1,4 @@
-package com.example.ahmedwahdan.flicker_photo.model;
+package com.example.ahmedwahdan.flicker_photo.network.model;
 
 import java.util.List;
 

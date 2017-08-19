@@ -1,6 +1,6 @@
-package com.example.ahmedwahdan.flicker_photo;
+package com.example.ahmedwahdan.flicker_photo.ui.search;
 
-import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.network.model.PhotoItem;
 
 import java.util.List;
 
