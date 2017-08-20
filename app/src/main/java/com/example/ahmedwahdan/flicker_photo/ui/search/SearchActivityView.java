@@ -1,6 +1,6 @@
 package com.example.ahmedwahdan.flicker_photo.ui.search;
 
-import com.example.ahmedwahdan.flicker_photo.network.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public interface SearchActivityView {
     void showLoading();
     void hideLoading();
-
     void showPhotosByTag(List<PhotoItem> photoItems, boolean isLoadingMore);
-
+    void onBitmapLoaded(PhotoItem item);
+    void onBitmapFailed(PhotoItem item);
     }

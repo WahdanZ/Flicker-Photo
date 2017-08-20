@@ -1,12 +1,18 @@
 package com.example.ahmedwahdan.flicker_photo.ui.search;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.example.ahmedwahdan.flicker_photo.helper.DataHelper;
+import com.example.ahmedwahdan.flicker_photo.helper.FileHelper;
+import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.model.PhotoSearch;
+import com.example.ahmedwahdan.flicker_photo.network.ImageRequestDownloader;
 import com.example.ahmedwahdan.flicker_photo.network.RequestListener;
 import com.example.ahmedwahdan.flicker_photo.network.SearchRequest;
-import com.example.ahmedwahdan.flicker_photo.network.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.utils.Const;
 
-import java.util.List;
+import java.io.File;
 
 /**
  * Created by ahmedwahdan on 8/10/17.
@@ -15,11 +21,13 @@ import java.util.List;
 public class SearchPresenterImp implements SearchPresenter, RequestListener.searchListener {
 
     private static String TAG = "SearchPresenter";
+    private  Context context;
     String tagSearch;
     private SearchActivityView searchView;
     private boolean loadMore;
 
-     public SearchPresenterImp(SearchActivityView searchView){
+     public SearchPresenterImp(SearchActivityView searchView, Context context){
+         this.context = context;
         this.searchView = searchView;
     }
     @Override
@@ -27,6 +35,10 @@ public class SearchPresenterImp implements SearchPresenter, RequestListener.sear
         loadMore = false;
         this.tagSearch = tagSearch;
         searchView.showLoading();
+       PhotoSearch res = DataHelper.getPhotoSearchFromSharedPrefrence(context);
+        if (res != null && res.getPhotos() != null) {
+            searchView.showPhotosByTag(res.getPhotos().getPhoto().subList(0, Const.MAX_NUMBER_PER_REQUEST-1),false);
+        }
         SearchRequest.index(tagSearch, TAG, 1, this);
     }
 
@@ -39,11 +51,37 @@ public class SearchPresenterImp implements SearchPresenter, RequestListener.sear
 
     }
 
+    @Override
+    public void downloadPhoto(final PhotoItem item) {
+        String fileName = FileHelper.getFlickrFilename(item);
+        File imageFile = new File(FileHelper.getImagesDir(), fileName);
+        if (!imageFile.exists()){
+            ImageRequestDownloader.index(item.getGetURl(),fileName, new RequestListener.imageDownloadListener() {
+                @Override
+                public void onBitmapLoaded() {
+                    searchView.onBitmapLoaded(item);
+                    Log.i("Done", "PIC_STATUS_SAVED");
+                }
+
+                @Override
+                public void onBitmapFailed() {
+                    searchView.onBitmapFailed(item);
+                    Log.i("Failed", "PIC_STATUS_FAIL");
+                }
+            });
+        }
+        else
+            searchView.onBitmapLoaded(item);
+
+    }
+
 
     @Override
-    public void onSearchResult(List<PhotoItem> photos) {
+    public void onSearchResult(PhotoSearch photoSearch) {
         searchView.hideLoading();
-        searchView.showPhotosByTag(photos, loadMore);
+        if (!loadMore)
+        DataHelper.saveGSONdateToSharedPrefrenace(context,photoSearch);
+        searchView.showPhotosByTag(photoSearch.getPhotos().getPhoto(), loadMore);
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.ahmedwahdan.flicker_photo.App;
-import com.example.ahmedwahdan.flicker_photo.network.model.PhotoSearch;
+import com.example.ahmedwahdan.flicker_photo.model.PhotoSearch;
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
@@ -33,7 +33,7 @@ public class SearchRequest {
 
                         PhotoSearch res = mGson.fromJson(String.valueOf(response), PhotoSearch.class);
                         if (res != null)
-                            listener.onSearchResult(res.getPhotos().getPhoto());
+                            listener.onSearchResult(res);
                         else
                             listener.onError("Failed to fetch data! ");
                     }

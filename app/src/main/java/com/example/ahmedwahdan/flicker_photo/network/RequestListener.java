@@ -1,8 +1,6 @@
 package com.example.ahmedwahdan.flicker_photo.network;
 
-import com.example.ahmedwahdan.flicker_photo.network.model.PhotoItem;
-
-import java.util.List;
+import com.example.ahmedwahdan.flicker_photo.model.PhotoSearch;
 
 /**
  * Created by ahmedwahdan on 8/10/17.
@@ -13,7 +11,11 @@ import java.util.List;
 * */
 public interface RequestListener {
      interface searchListener{
-        void onSearchResult(List<PhotoItem> photos);
+        void onSearchResult(PhotoSearch photoSearch);
         void onError(String error);
+    }
+    interface  imageDownloadListener{
+        void onBitmapLoaded();
+        void onBitmapFailed();
     }
 }

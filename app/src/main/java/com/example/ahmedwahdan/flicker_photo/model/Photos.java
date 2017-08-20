@@ -1,25 +1,13 @@
-package com.example.ahmedwahdan.flicker_photo.network.model;
-
-import com.google.gson.annotations.SerializedName;
+package com.example.ahmedwahdan.flicker_photo.model;
 
 import java.util.List;
 
-public class Groups{
-
-	@SerializedName("perpage")
+public class Photos{
 	private int perpage;
-
-	@SerializedName("total")
 	private String total;
-
-	@SerializedName("pages")
 	private int pages;
-
-	@SerializedName("page")
+	private List<PhotoItem> photo;
 	private int page;
-
-	@SerializedName("group")
-	private List<GroupItem> group;
 
 	public void setPerpage(int perpage){
 		this.perpage = perpage;
@@ -45,6 +33,14 @@ public class Groups{
 		return pages;
 	}
 
+	public void setPhoto(List<PhotoItem> photo){
+		this.photo = photo;
+	}
+
+	public List<PhotoItem> getPhoto(){
+		return photo;
+	}
+
 	public void setPage(int page){
 		this.page = page;
 	}
@@ -53,23 +49,15 @@ public class Groups{
 		return page;
 	}
 
-	public void setGroup(List<GroupItem> group){
-		this.group = group;
-	}
-
-	public List<GroupItem> getGroup(){
-		return group;
-	}
-
 	@Override
  	public String toString(){
 		return 
-			"Groups{" + 
+			"Photos{" + 
 			"perpage = '" + perpage + '\'' + 
 			",total = '" + total + '\'' + 
 			",pages = '" + pages + '\'' + 
+			",photo = '" + photo + '\'' + 
 			",page = '" + page + '\'' + 
-			",group = '" + group + '\'' + 
 			"}";
 		}
 }

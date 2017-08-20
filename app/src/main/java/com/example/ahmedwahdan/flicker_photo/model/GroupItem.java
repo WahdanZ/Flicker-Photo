@@ -1,4 +1,4 @@
-package com.example.ahmedwahdan.flicker_photo.network.model;
+package com.example.ahmedwahdan.flicker_photo.model;
 
 import com.google.gson.annotations.SerializedName;
 

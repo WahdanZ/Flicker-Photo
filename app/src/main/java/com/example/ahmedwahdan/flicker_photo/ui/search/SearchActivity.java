@@ -22,20 +22,27 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.example.ahmedwahdan.flicker_photo.R;
-import com.example.ahmedwahdan.flicker_photo.network.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.helper.PhotoState;
+import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.network.PicassoHelper;
 import com.example.ahmedwahdan.flicker_photo.provider.MySuggestionProvider;
 import com.example.ahmedwahdan.flicker_photo.ui.helper.EndlessRecyclerViewScrollListener;
 import com.example.ahmedwahdan.flicker_photo.utils.ScreenUtils;
+import com.squareup.picasso.Target;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
 public class SearchActivity extends AppCompatActivity  implements SearchView.OnQueryTextListener, SearchActivityView {
+    public final static Set<Target> protectedFromGarbageCollectorTargets = new HashSet<>();
+
     public final static String PHOTO_ITEMS = "photo_items";
     private static final String TAG = SearchActivity.class.getSimpleName();
     List<PhotoItem> photosList ;
@@ -65,7 +72,7 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         photosList = new ArrayList<>();
-        presenter = new SearchPresenterImp(this);
+        presenter = new SearchPresenterImp(this,this);
 
 
         // create new instance of Gridlayout manager
@@ -90,7 +97,7 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
             }
         });
         setupUI(contenView);
-
+        PicassoHelper.init(this);
     }
 
     private RecyclerView.OnScrollListener getScrollListener() {
@@ -161,21 +168,16 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
     }
     @Override protected void onPause() {
         super.onPause();
-        if (isFinishing()) {
 
-        }
     }
     @Override
     public void showPhotosByTag(List<PhotoItem> photoItems, boolean isLoadingMore) {
-        Log.d("SearchActivity", "showPhotoResult");
         if (adapter == null) {
-            Log.d("SearchActivity", "showPhotoResult : Create New Adapter");
-
             // create  instance of recyclerView Adapter
             adapter = new PhotoAdapter( photoItems, this);
             recyclerView.setAdapter(adapter);
         } else {
-            Log.d("SearchActivity", "showPhotoResult : adapter is exist load more or get new search result");
+            Log.i("SearchActivity", "showPhotoResult : adapter is exist load more or get new search result");
 
             if (isLoadingMore) {
                 Log.d("SearchActivity", "showPhotoResult : Load more photo");
@@ -184,15 +186,60 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
                 Log.d("SearchActivity", "showPhotoResult : Display new search result " + photoItems.size());
                 recyclerView.removeOnScrollListener(scrollListener);
                 recyclerView.addOnScrollListener(getScrollListener());
-
                 photosList = photoItems;
                 adapter.updatePhotoList(photosList);
-
             }
+            photoItemPicassoDownloader(photoItems);
+
+
         }
 
     }
 
+    private void photoItemPicassoDownloader(List<PhotoItem> photoItems) {
+
+        Log.i("Done", "PIC_STATUS_LOADING");
+        adapter.notifyDataSetChanged();
+        for ( PhotoItem photoItem : photoItems) {
+            presenter.downloadPhoto(photoItem);
+            adapter.picStatusList.put(photoItem.getId(),PhotoState.PIC_STATUS_LOADING);
+
+
+//            PicassoHelper.DownloadTarget target = new PicassoHelper.DownloadTarget();
+//            target.fileName = photoItem.getId() + ".jpg";
+//            target.onBitmapLoaded = new Runnable(){
+//                @Override
+//                public void run() {
+//                    adapter.picStatusList.put(item.getId(),PhotoState.PIC_STATUS_SAVED);
+//                    Log.i("Done", "PIC_STATUS_SAVED");
+//
+//                    adapter.notifyDataSetChanged();
+//                }
+//            };
+//
+//            target.onBitmapFailed = new Runnable() {
+//                @Override
+//                public void run() {
+//                    adapter.picStatusList.put(item.getId(),PhotoState.PIC_STATUS_FAIL);
+//                    Log.i("Failed", "PIC_STATUS_FAIL");
+//                    adapter.notifyDataSetChanged();
+//                }
+//            };
+//            MyPicasso.load(photoItem.getGetURl()).tag(this).into(target);
+        }
+    }
+    @Override
+    public void onBitmapLoaded(PhotoItem item) {
+        adapter.picStatusList.put(item.getId(), PhotoState.PIC_STATUS_SAVED);
+        Log.i("Done", "PIC_STATUS_SAVED");
+    }
+
+    @Override
+    public void onBitmapFailed(PhotoItem item) {
+        adapter.picStatusList.put(item.getId(),PhotoState.PIC_STATUS_FAIL);
+        Log.i("Failed", "PIC_STATUS_FAIL");
+        adapter.notifyDataSetChanged();
+    }
     // Method called after user submit photo tag name
     @Override
     public boolean onQueryTextSubmit(String query) {

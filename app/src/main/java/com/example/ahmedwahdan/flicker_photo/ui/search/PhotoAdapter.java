@@ -10,9 +10,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.ahmedwahdan.flicker_photo.R;
-import com.example.ahmedwahdan.flicker_photo.network.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.helper.FileHelper;
+import com.example.ahmedwahdan.flicker_photo.helper.PhotoState;
+import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.utils.Const;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -25,10 +31,11 @@ import butterknife.ButterKnife;
 public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = PhotoAdapter.class.getSimpleName();
+    public HashMap<String, PhotoState> picStatusList = new HashMap<>();
     public final static int VIEW_ITEM = 1;
     public  final static int VIEW_DIVIDE = 0;
     private  Context context;
-    private  List<PhotoItem> photoItems;
+    protected   List<PhotoItem> photoItems;
     private int page = 1;
 
     PhotoAdapter(List<PhotoItem> photoItems, Context context) {
@@ -51,14 +58,55 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ViewHolder ) {
-            PhotoItem item = photoItems.get(position);
-            Log.d(TAG, item.getGetURl());
-            Picasso.with(context)
-                    .load(item.getGetURl())
+            final PhotoItem item = photoItems.get(position);
+            String photoID = item.getId();
+            File imageFile = new File(FileHelper.getImagesDir(), FileHelper.getFlickrFilename(item));
+
+
+            if(picStatusList.get(photoID) == PhotoState.PIC_STATUS_LOADING){
+                Picasso.with(context)
+                        .load(item.getGetURl())
+                        .fit()
+                        .centerCrop()
+                        .tag(context)
+                        .placeholder(R.drawable.progress_animation)
+                        .into(((ViewHolder) holder).photoImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                picStatusList.put(item.getId(),PhotoState.PIC_STATUS_SAVED);
+                            }
+
+                            @Override
+                            public void onError() {
+                                picStatusList.put(item.getId(),PhotoState.PIC_STATUS_FAIL);
+
+                            }
+                        });
+            }
+            if(picStatusList.get(photoID) == PhotoState.PIC_STATUS_FAIL){
+
+            }
+            if(picStatusList.get(photoID) == PhotoState.PIC_STATUS_SAVED){
+                Log.d(TAG, "imageFile.isFile():" + imageFile.isFile());
+                 Picasso.with(context)
+                    .load(imageFile)
                     .fit()
                     .centerCrop()
+                    .tag(context)
                     .placeholder(R.drawable.progress_animation)
                     .into(((ViewHolder) holder).photoImage);
+                }
+
+
+
+//                Log.d(TAG, item.getGetURl());
+//            Picasso.with(context)
+//                    .load(NetworkUtils.getPhotoUrl(item))
+//                    .fit()
+//                    .centerCrop()
+//                    .tag(context)
+//                    .placeholder(R.drawable.progress_animation)
+//                    .into(((ViewHolder) holder).photoImage);
         }
         else if (holder instanceof DividerNumberViewHolder){
             ((DividerNumberViewHolder) holder).pageNumber.setText(""+(position/21));
@@ -69,7 +117,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        return ( position % 21 == 0 && position > 0) ? VIEW_DIVIDE : VIEW_ITEM;
+        return ( position % Const.MAX_NUMBER_PER_REQUEST == 0 && position > 0) ? VIEW_DIVIDE : VIEW_ITEM;
 
 
     }

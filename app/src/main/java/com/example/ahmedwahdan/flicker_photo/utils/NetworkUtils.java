@@ -5,11 +5,19 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
 
+import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
+
 /**
  * Created by ahmedwahdan on 8/19/17.
  */
 
 public class NetworkUtils {
+    public static String getPhotoUrl (PhotoItem photoItem){
+        return  "https://farm"+photoItem.getFarm()+".staticflickr.com/"+
+                                photoItem.getServer()+"/"+photoItem.getId()+"_"+photoItem.getSecret()+".jpg";
+
+    }
+
      public static boolean isInternetConnected (Context context) {
          ConnectivityManager connectivityMgr = (ConnectivityManager) context
                  .getSystemService(Context.CONNECTIVITY_SERVICE);
