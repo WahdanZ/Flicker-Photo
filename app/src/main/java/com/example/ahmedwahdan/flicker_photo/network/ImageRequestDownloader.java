@@ -28,25 +28,29 @@ public class ImageRequestDownloader {
                 new Response.Listener<Bitmap>() { // Bitmap listener
                     @Override
                     public void onResponse(Bitmap bitmap) {
-
-                        final File myImageFile = new File(FileHelper.getImagesDir(), fileName);
+                    
+                        final File myImageFile = new File(FileHelper.getDefaultSaveFile(), fileName);
                         // Create image file
                         FileOutputStream fos = null;
                         try {
                             fos = new FileOutputStream(myImageFile);
                             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            Log.i(TAG, "onResponse: file saved" );
                         } catch (IOException e) {
                             e.printStackTrace();
                             listener.onBitmapFailed();
+
+                            return;
                         } finally {
                             try {
                                 fos.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 listener.onBitmapFailed();
+                                return;
                             }
                         }
-                        listener.onBitmapLoaded();
+                        listener.onBitmapLoaded(bitmap);
                         Log.i("image", "image saved to >>>" + myImageFile.getAbsolutePath());
                     }
                 },
@@ -57,7 +61,6 @@ public class ImageRequestDownloader {
                 new Response.ErrorListener() { // Error listener
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, error.getMessage());
                         listener.onBitmapFailed();
 
                     }

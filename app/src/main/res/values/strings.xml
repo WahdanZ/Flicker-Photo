@@ -2,4 +2,5 @@
     <string name="app_name">Flicker-Photo</string>
     <string name="search">search</string>
     <string name="search_hint">search</string>
+    <string name="transition_test">test</string>
 </resources>

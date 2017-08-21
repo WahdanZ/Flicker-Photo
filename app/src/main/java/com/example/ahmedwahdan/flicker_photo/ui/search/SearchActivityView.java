@@ -1,5 +1,7 @@
 package com.example.ahmedwahdan.flicker_photo.ui.search;
 
+import android.graphics.Bitmap;
+
 import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
 
 import java.util.List;
@@ -12,6 +14,11 @@ public interface SearchActivityView {
     void showLoading();
     void hideLoading();
     void showPhotosByTag(List<PhotoItem> photoItems, boolean isLoadingMore);
-    void onBitmapLoaded(PhotoItem item);
-    void onBitmapFailed(PhotoItem item);
+    void showErrorMessage(String message);
+
+    interface PhotoAdapterView{
+        void onBitmapLoaded(Bitmap bitmap);
+        void onBitmapFailed();
     }
+
+}

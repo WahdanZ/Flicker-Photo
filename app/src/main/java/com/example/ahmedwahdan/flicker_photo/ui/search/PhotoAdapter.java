@@ -1,6 +1,7 @@
 package com.example.ahmedwahdan.flicker_photo.ui.search;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +15,7 @@ import com.example.ahmedwahdan.flicker_photo.helper.FileHelper;
 import com.example.ahmedwahdan.flicker_photo.helper.PhotoState;
 import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
 import com.example.ahmedwahdan.flicker_photo.utils.Const;
-import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -29,18 +30,22 @@ import butterknife.ButterKnife;
  */
 
 public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    Listener listener;
 
     private static final String TAG = PhotoAdapter.class.getSimpleName();
-    public HashMap<String, PhotoState> picStatusList = new HashMap<>();
+    private  SearchPresenter presenter;
+    public HashMap<String, PhotoState > picStatusList = new HashMap<>();
     public final static int VIEW_ITEM = 1;
     public  final static int VIEW_DIVIDE = 0;
     private  Context context;
     protected   List<PhotoItem> photoItems;
     private int page = 1;
 
-    PhotoAdapter(List<PhotoItem> photoItems, Context context) {
+    PhotoAdapter(List<PhotoItem> photoItems, Context context , SearchPresenter presenter , Listener listener) {
         this.photoItems = photoItems;
         this.context = context;
+        this.presenter = presenter;
+        this.listener =listener;
     }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -56,47 +61,55 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder ) {
             final PhotoItem item = photoItems.get(position);
             String photoID = item.getId();
-            File imageFile = new File(FileHelper.getImagesDir(), FileHelper.getFlickrFilename(item));
+            final File imageFile = new File(FileHelper.getDefaultSaveFile(), FileHelper.getFlickrFilename(item));
+            if (!picStatusList.containsKey(item.getId()) && !imageFile.exists()){
+                picStatusList.put(item.getId(),PhotoState.PIC_STATUS_LOADING);
+
+                presenter.downloadPhoto(item, new SearchActivityView.PhotoAdapterView() {
+
+
+                    @Override
+                public void onBitmapLoaded(Bitmap  bitmap) {
+                        picStatusList.put(item.getId(),PhotoState.PIC_STATUS_SAVED);
+
+                        if (bitmap != null)
+                    ((ViewHolder) holder).photoImage.setImageBitmap(bitmap);
+
+                    ((ViewHolder) holder).photoImage.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            listener.onImageClicked(view,imageFile.getAbsolutePath());
+                        }
+                    });
+
+                         // notifyItemChanged(position);
+                }
+
+                @Override
+                public void onBitmapFailed() {
+
+                }
+            });
+            picStatusList.put(item.getId(),PhotoState.PIC_STATUS_LOADING);
+            }
+            if (imageFile.exists())
+                picStatusList.put(item.getId(),PhotoState.PIC_STATUS_SAVED);
+
 
 
             if(picStatusList.get(photoID) == PhotoState.PIC_STATUS_LOADING){
                 Picasso.with(context)
-                        .load(item.getGetURl())
-                        .fit()
-                        .centerCrop()
+                        .load(R.drawable.progress_animation)
                         .tag(context)
-                        .placeholder(R.drawable.progress_animation)
-                        .into(((ViewHolder) holder).photoImage, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                                picStatusList.put(item.getId(),PhotoState.PIC_STATUS_SAVED);
-                            }
-
-                            @Override
-                            public void onError() {
-                                picStatusList.put(item.getId(),PhotoState.PIC_STATUS_FAIL);
-
-                            }
-                        });
-            }
-            if(picStatusList.get(photoID) == PhotoState.PIC_STATUS_FAIL){
-
+                        .into(((ViewHolder) holder).photoImage);
             }
             if(picStatusList.get(photoID) == PhotoState.PIC_STATUS_SAVED){
-                Log.d(TAG, "imageFile.isFile():" + imageFile.isFile());
-                 Picasso.with(context)
-                    .load(imageFile)
-                    .fit()
-                    .centerCrop()
-                    .tag(context)
-                    .placeholder(R.drawable.progress_animation)
-                    .into(((ViewHolder) holder).photoImage);
+                loadImageFromDisk((ViewHolder) holder, imageFile);
                 }
-
 
 
 //                Log.d(TAG, item.getGetURl());
@@ -109,10 +122,27 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 //                    .into(((ViewHolder) holder).photoImage);
         }
         else if (holder instanceof DividerNumberViewHolder){
-            ((DividerNumberViewHolder) holder).pageNumber.setText(""+(position/21));
+            ((DividerNumberViewHolder) holder).pageNumber.setText(""+((position+1)/Const.MAX_NUMBER_PER_REQUEST));
 
         }
 
+    }
+
+    private void loadImageFromDisk(ViewHolder holder, final File imageFile) {
+        Log.d(TAG, "imageFile.isFile():" + imageFile.isFile());
+        Picasso.with(context)
+           .load(imageFile)
+           .fit().centerCrop()
+           .tag(context)
+                .memoryPolicy(MemoryPolicy.NO_CACHE,MemoryPolicy.NO_STORE)
+           .placeholder(R.drawable.progress_animation)
+           .into(holder.photoImage);
+         holder.photoImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.onImageClicked(view,imageFile.getAbsolutePath());
+            }
+        });
     }
 
     @Override
@@ -149,6 +179,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             ButterKnife.bind(this, itemView);
 
          }
+
     }
 
     public static class DividerNumberViewHolder extends RecyclerView.ViewHolder {
@@ -158,5 +189,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             super(itemView);
             ButterKnife.bind(this,itemView);
         }
+    }
+    public interface Listener {
+        void onImageClicked(View view , String imagePath);
     }
 }

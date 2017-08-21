@@ -7,7 +7,9 @@ import com.github.hynra.gsonsharedpreferences.GSONSharedPreferences;
 import com.github.hynra.gsonsharedpreferences.ParsingException;
 
 /**
- * Created by ahmedwahdan on 8/20/17.
+*Class used to store Photo Search Result retrieved from Flickr API
+ and save it in Shared Preferences To retrieve it again on no internet connection
+ , at first any request call on  on application first launch
  */
 
 public class DataHelper {

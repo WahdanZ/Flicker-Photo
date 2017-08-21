@@ -8,7 +8,8 @@ import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
 
 public interface SearchPresenter {
     void getPhotosByTag(String tag);
+    void displayLastPhotoSearch();
     void loadMorePhoto(int page);
-    void downloadPhoto(PhotoItem photoItem);
+    void downloadPhoto(PhotoItem photoItem  , SearchActivityView.PhotoAdapterView adapterView);
 
 }

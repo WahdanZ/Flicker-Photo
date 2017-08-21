@@ -5,7 +5,8 @@ package com.example.ahmedwahdan.flicker_photo.utils;
  */
 
 public class Const {
-    public static final String APIKEY = "fefd3f10260b7c6f7344ebc95700ed94";
-    public static  final int  MAX_NUMBER_PER_REQUEST = 60;
+    public static final String APIKEY = "ff7bb2c27e4aaa3defd1e83527ba86a4";
+    public static  final int  MAX_NUMBER_PER_REQUEST = 30;
+
     
 }

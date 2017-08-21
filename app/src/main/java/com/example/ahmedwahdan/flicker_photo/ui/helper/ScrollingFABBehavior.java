@@ -8,7 +8,7 @@ import android.view.View;
 
 
 /**
- * Created by ahmedwahdan on 8/18/17.
+ * Class used to hide and show fab on scroll
  */
 public class ScrollingFABBehavior extends CoordinatorLayout.Behavior<FloatingActionButton>  {
     public ScrollingFABBehavior(Context context, AttributeSet attrs) {

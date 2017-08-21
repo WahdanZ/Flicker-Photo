@@ -1,5 +1,7 @@
 package com.example.ahmedwahdan.flicker_photo.network;
 
+import android.graphics.Bitmap;
+
 import com.example.ahmedwahdan.flicker_photo.model.PhotoSearch;
 
 /**
@@ -15,7 +17,7 @@ public interface RequestListener {
         void onError(String error);
     }
     interface  imageDownloadListener{
-        void onBitmapLoaded();
+        void onBitmapLoaded(Bitmap bitmap);
         void onBitmapFailed();
     }
 }
