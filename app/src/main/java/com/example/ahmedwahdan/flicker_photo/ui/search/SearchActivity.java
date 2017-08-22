@@ -26,7 +26,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.ahmedwahdan.flicker_photo.R;
 import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
@@ -200,15 +199,17 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
 
     }
     private void transition(View view , String imagePath) {
+        Intent intent = new Intent(this, PhotoViewer.class);
+        intent.putExtra(PhotoViewer.IMAGE_KEY , imagePath);
         if (Build.VERSION.SDK_INT < 21) {
-            Toast.makeText(this, "21+ only, keep out", Toast.LENGTH_SHORT).show();
+            startActivity(intent);
         } else {
-            Intent intent = new Intent(this, PhotoViewer.class);
-            intent.putExtra(PhotoViewer.IMAGE_KEY , imagePath);
             ActivityOptionsCompat options = ActivityOptionsCompat.
                     makeSceneTransitionAnimation(this, view, getString(R.string.transition_test));
             startActivity(intent, options.toBundle());
+
         }
+
     }
     //save state of photo item to restore it on onCreate Method to prevent it from disappear
       /*
