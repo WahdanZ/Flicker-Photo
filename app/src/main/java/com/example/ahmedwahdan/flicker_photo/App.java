@@ -5,6 +5,7 @@ import android.app.Application;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.example.ahmedwahdan.flicker_photo.helper.FileHelper;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -25,10 +26,10 @@ public class App  extends Application{
         super.onCreate();
         mAppController =this;
          picasso = new Picasso.Builder(this)
-                  //   .loggingEnabled(true)
+                  //  .loggingEnabled(true)
                 // .indicatorsEnabled(true)
                      .build();
-
+        FileHelper.cachesFiles = FileHelper.getCacheFiles();
         Picasso.setSingletonInstance(picasso);
 
 

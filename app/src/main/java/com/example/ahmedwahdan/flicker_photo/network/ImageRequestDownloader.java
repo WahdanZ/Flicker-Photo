@@ -50,6 +50,7 @@ public class ImageRequestDownloader {
                                 return;
                             }
                         }
+                        FileHelper.cachesFiles.add(myImageFile.getAbsolutePath());
                         listener.onBitmapLoaded(bitmap);
                         Log.i("image", "image saved to >>>" + myImageFile.getAbsolutePath());
                     }

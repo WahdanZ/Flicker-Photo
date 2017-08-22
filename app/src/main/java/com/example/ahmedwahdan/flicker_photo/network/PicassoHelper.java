@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import com.example.ahmedwahdan.flicker_photo.helper.FileHelper;
-import com.example.ahmedwahdan.flicker_photo.ui.search.SearchActivity;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -35,10 +34,9 @@ public class PicassoHelper {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             Log.i(TAG, "onBitmapLoaded");
-           SearchActivity.protectedFromGarbageCollectorTargets.remove(this);
             try {
 
-                File picFile = new File(FileHelper.getAppExternalDir(), fileName);
+                File picFile = new File(FileHelper.getAppCacheDir(), fileName);
                 if(picFile.exists()){
                     picFile.delete();
                 }
@@ -47,6 +45,7 @@ public class PicassoHelper {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                 out.flush();
                 out.close();
+                FileHelper.cachesFiles.add(fileName);
                 onBitmapLoaded.run();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -56,8 +55,6 @@ public class PicassoHelper {
 
         @Override
         public void onBitmapFailed(Drawable errorDrawable) {
-            SearchActivity.protectedFromGarbageCollectorTargets.remove(this);
-
             onBitmapFailed.run();
         }
 

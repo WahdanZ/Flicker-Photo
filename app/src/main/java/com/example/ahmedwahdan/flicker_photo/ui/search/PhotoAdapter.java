@@ -64,40 +64,35 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder ) {
             final PhotoItem item = photoItems.get(position);
-            String photoID = item.getId();
-            final File imageFile = new File(FileHelper.getDefaultSaveFile(), FileHelper.getFlickrFilename(item));
-            if (!picStatusList.containsKey(item.getId()) && !imageFile.exists()){
+            final String photoID = item.getId();
+            if (!FileHelper.isFileFound(item)){
                 picStatusList.put(item.getId(),PhotoState.PIC_STATUS_LOADING);
-
                 presenter.downloadPhoto(item, new SearchActivityView.PhotoAdapterView() {
 
-
                     @Override
-                public void onBitmapLoaded(Bitmap  bitmap) {
-                        picStatusList.put(item.getId(),PhotoState.PIC_STATUS_SAVED);
+                    public void onBitmapLoaded(Bitmap  bitmap) {
+                        picStatusList.put(photoID,PhotoState.PIC_STATUS_SAVED);
 
                         if (bitmap != null)
-                    ((ViewHolder) holder).photoImage.setImageBitmap(bitmap);
+                            ((ViewHolder) holder).photoImage.setImageBitmap(bitmap);
 
-                    ((ViewHolder) holder).photoImage.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            listener.onImageClicked(view,imageFile.getAbsolutePath());
-                        }
-                    });
-
-                         // notifyItemChanged(position);
-                }
-
+                        ((ViewHolder) holder).photoImage.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                listener.onImageClicked(view,FileHelper.getFlickrFilePath(item));
+                            }
+                        });
+            }
                 @Override
                 public void onBitmapFailed() {
 
                 }
             });
-            picStatusList.put(item.getId(),PhotoState.PIC_STATUS_LOADING);
             }
-            if (imageFile.exists())
-                picStatusList.put(item.getId(),PhotoState.PIC_STATUS_SAVED);
+            else {
+                picStatusList.put(photoID,PhotoState.PIC_STATUS_SAVED);
+                loadImageFromDisk((ViewHolder) holder, item);
+            }
 
 
 
@@ -107,9 +102,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         .tag(context)
                         .into(((ViewHolder) holder).photoImage);
             }
-            if(picStatusList.get(photoID) == PhotoState.PIC_STATUS_SAVED){
-                loadImageFromDisk((ViewHolder) holder, imageFile);
-                }
+
 
 
 //                Log.d(TAG, item.getGetURl());
@@ -128,7 +121,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     }
 
-    private void loadImageFromDisk(ViewHolder holder, final File imageFile) {
+    private void loadImageFromDisk(ViewHolder holder, PhotoItem item) {
+        final File imageFile = new File(FileHelper.getDefaultSaveFile(), FileHelper.getFlickrFilename(item));
+
         Log.d(TAG, "imageFile.isFile():" + imageFile.isFile());
         Picasso.with(context)
            .load(imageFile)
