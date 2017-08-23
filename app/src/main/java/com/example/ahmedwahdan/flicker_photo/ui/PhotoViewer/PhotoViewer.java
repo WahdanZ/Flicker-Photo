@@ -1,4 +1,4 @@
-package com.example.ahmedwahdan.flicker_photo.ui.search;
+package com.example.ahmedwahdan.flicker_photo.ui.PhotoViewer;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

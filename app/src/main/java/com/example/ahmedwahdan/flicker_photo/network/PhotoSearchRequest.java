@@ -16,14 +16,14 @@ import org.json.JSONObject;
  * Created by ahmedwahdan on 8/10/17.
  */
 
-public class SearchRequest {
-    private static final String TAG = SearchRequest.class.getSimpleName();
+public class PhotoSearchRequest {
+    private static final String TAG = PhotoSearchRequest.class.getSimpleName();
     private static App mAppController = App.getInstance();
     private static Gson mGson = mAppController.getGson();
 
-    public static void index(String searchTag, String tag, int page, final RequestListener.searchListener listener) {
+    public static void index(String searchTag, String tag, int page, String grouId , final RequestListener.photoSearchListener listener) {
         mAppController.cancelPendingRequests(tag);
-        String url = Routs.baseUrl + searchTag + "&page=" + page;
+        String url = Routs.photoSearchUrl + searchTag + "&page=" + page +"&group_id="+grouId;
         Log.d(TAG, "URL: " + url);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,null,
                 new Response.Listener<JSONObject>() {

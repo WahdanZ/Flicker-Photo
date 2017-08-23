@@ -1,18 +1,12 @@
 package com.example.ahmedwahdan.flicker_photo.network;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.example.ahmedwahdan.flicker_photo.App;
-import com.example.ahmedwahdan.flicker_photo.helper.FileHelper;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Created by ahmedwahdan on 8/20/17.
@@ -28,31 +22,7 @@ public class ImageRequestDownloader {
                 new Response.Listener<Bitmap>() { // Bitmap listener
                     @Override
                     public void onResponse(Bitmap bitmap) {
-                    
-                        final File myImageFile = new File(FileHelper.getDefaultSaveFile(), fileName);
-                        // Create image file
-                        FileOutputStream fos = null;
-                        try {
-                            fos = new FileOutputStream(myImageFile);
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            Log.i(TAG, "onResponse: file saved" );
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            listener.onBitmapFailed();
-
-                            return;
-                        } finally {
-                            try {
-                                fos.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                listener.onBitmapFailed();
-                                return;
-                            }
-                        }
-                        FileHelper.cachesFiles.add(myImageFile.getAbsolutePath());
-                        listener.onBitmapLoaded(bitmap);
-                        Log.i("image", "image saved to >>>" + myImageFile.getAbsolutePath());
+                        new SaveFileAsync(bitmap,fileName,listener).execute();
                     }
                 },
                 0, // Image width

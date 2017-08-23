@@ -10,7 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 
-import com.example.ahmedwahdan.flicker_photo.ui.search.PhotoAdapter;
+import com.example.ahmedwahdan.flicker_photo.ui.search.PhotoSearch.PhotoAdapter;
 
 public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnScrollListener {
     RecyclerView.LayoutManager mLayoutManager;

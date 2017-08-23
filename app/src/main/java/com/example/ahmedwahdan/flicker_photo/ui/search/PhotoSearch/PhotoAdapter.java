@@ -1,5 +1,6 @@
-package com.example.ahmedwahdan.flicker_photo.ui.search;
+package com.example.ahmedwahdan.flicker_photo.ui.search.PhotoSearch;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +15,8 @@ import com.example.ahmedwahdan.flicker_photo.R;
 import com.example.ahmedwahdan.flicker_photo.helper.FileHelper;
 import com.example.ahmedwahdan.flicker_photo.helper.PhotoState;
 import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
+import com.example.ahmedwahdan.flicker_photo.ui.search.MVPViewer;
+import com.example.ahmedwahdan.flicker_photo.ui.search.SearchPresenter;
 import com.example.ahmedwahdan.flicker_photo.utils.Const;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
@@ -33,7 +36,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     Listener listener;
 
     private static final String TAG = PhotoAdapter.class.getSimpleName();
-    private  SearchPresenter presenter;
+    private SearchPresenter.PhotoSearchPresenter  presenter;
     public HashMap<String, PhotoState > picStatusList = new HashMap<>();
     public final static int VIEW_ITEM = 1;
     public  final static int VIEW_DIVIDE = 0;
@@ -41,11 +44,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     protected   List<PhotoItem> photoItems;
     private int page = 1;
 
-    PhotoAdapter(List<PhotoItem> photoItems, Context context , SearchPresenter presenter , Listener listener) {
+    PhotoAdapter(List<PhotoItem> photoItems, Context context , SearchPresenter.PhotoSearchPresenter presenter ) {
         this.photoItems = photoItems;
         this.context = context;
         this.presenter = presenter;
-        this.listener =listener;
+      //  this.listener =listener;
     }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -64,28 +67,26 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder ) {
             final PhotoItem item = photoItems.get(position);
-            final String photoID = item.getId();
+            final String photoID = FileHelper.getFlickrFilename(item);
             if (!FileHelper.isFileFound(item)){
                 picStatusList.put(item.getId(),PhotoState.PIC_STATUS_LOADING);
-                presenter.downloadPhoto(item, new SearchActivityView.PhotoAdapterView() {
-
+                presenter.downloadPhoto(item, new MVPViewer.PhotoAdapterView() {
                     @Override
-                    public void onBitmapLoaded(Bitmap  bitmap) {
+                    public void onBitmapLoaded(final Bitmap bitmap) {
                         picStatusList.put(photoID,PhotoState.PIC_STATUS_SAVED);
+                        if (bitmap != null){
+                           // updatePhotoItem(bitmap, (ViewHolder) holder, item);
+                            ((Activity) context).runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    notifyItemChanged(position);
+                                }});
 
-                        if (bitmap != null)
-                            ((ViewHolder) holder).photoImage.setImageBitmap(bitmap);
-
-                        ((ViewHolder) holder).photoImage.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                listener.onImageClicked(view,FileHelper.getFlickrFilePath(item));
-                            }
-                        });
+                        }
             }
                 @Override
                 public void onBitmapFailed() {
-
+                    picStatusList.put(photoID,PhotoState.PIC_STATUS_FAIL);
                 }
             });
             }
@@ -121,9 +122,24 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     }
 
+    private void updatePhotoItem(final Bitmap bitmap, final ViewHolder holder, final PhotoItem item) {
+        ((Activity) context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //Code for the UiThread
+                holder.photoImage.setImageBitmap(bitmap);
+                holder.photoImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        presenter.onPhotoItemClicked(FileHelper.getFlickrFilePath(item));
+                    }
+                });
+            }
+        });
+    }
+
     private void loadImageFromDisk(ViewHolder holder, PhotoItem item) {
         final File imageFile = new File(FileHelper.getDefaultSaveFile(), FileHelper.getFlickrFilename(item));
-
         Log.d(TAG, "imageFile.isFile():" + imageFile.isFile());
         Picasso.with(context)
            .load(imageFile)
@@ -135,7 +151,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
          holder.photoImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.onImageClicked(view,imageFile.getAbsolutePath());
+                presenter.onPhotoItemClicked(imageFile.getAbsolutePath());
             }
         });
     }

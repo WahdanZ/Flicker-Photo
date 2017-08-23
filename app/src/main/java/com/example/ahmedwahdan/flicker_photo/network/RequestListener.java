@@ -2,6 +2,7 @@ package com.example.ahmedwahdan.flicker_photo.network;
 
 import android.graphics.Bitmap;
 
+import com.example.ahmedwahdan.flicker_photo.model.GroupSearch;
 import com.example.ahmedwahdan.flicker_photo.model.PhotoSearch;
 
 /**
@@ -12,8 +13,12 @@ import com.example.ahmedwahdan.flicker_photo.model.PhotoSearch;
 *
 * */
 public interface RequestListener {
-     interface searchListener{
+     interface photoSearchListener {
         void onSearchResult(PhotoSearch photoSearch);
+        void onError(String error);
+    }
+    interface groupSearchListener {
+        void onSearchResult(GroupSearch photoSearch);
         void onError(String error);
     }
     interface  imageDownloadListener{

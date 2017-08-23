@@ -3,7 +3,7 @@
     android:id="@+id/photo_id"
     android:layout_width="match_parent"
     android:src="@drawable/progress_animation"
-    android:scaleType="fitXY"
+    android:scaleType="center"
     android:layout_height="180dp"
     android:padding="5dp"
     />

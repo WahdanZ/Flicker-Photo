@@ -2,7 +2,7 @@ package com.example.ahmedwahdan.flicker_photo.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class GroupItem{
+public class GroupItem {
 
 	@SerializedName("nsid")
 	private String nsid;
@@ -30,6 +30,20 @@ public class GroupItem{
 
 	@SerializedName("eighteenplus")
 	private int eighteenplus;
+
+	public GroupItem() {
+	}
+	public GroupItem(String nsid, int iconfarm, String iconserver, String members, String name, String poolCount, String privacy, String topicCount, int eighteenplus) {
+		this.nsid = nsid;
+		this.iconfarm = iconfarm;
+		this.iconserver = iconserver;
+		this.members = members;
+		this.name = name;
+		this.poolCount = poolCount;
+		this.privacy = privacy;
+		this.topicCount = topicCount;
+		this.eighteenplus = eighteenplus;
+	}
 
 	public void setNsid(String nsid){
 		this.nsid = nsid;
