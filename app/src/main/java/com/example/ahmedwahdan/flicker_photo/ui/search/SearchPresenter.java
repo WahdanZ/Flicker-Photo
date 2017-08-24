@@ -13,7 +13,7 @@ public  interface SearchPresenter {
 
     interface PhotoSearchPresenter extends SearchPresenter{
         void displayLastPhotoSearch();
-        void getPhotosByTag(String tag);
+        void getPhotosByTag(String tag , String groupId);
         void loadMorePhoto(String query , int page);
         void downloadPhoto(PhotoItem photoItem  , MVPViewer.PhotoAdapterView adapterView);
         void onPhotoItemClicked(String flickrFilePath);

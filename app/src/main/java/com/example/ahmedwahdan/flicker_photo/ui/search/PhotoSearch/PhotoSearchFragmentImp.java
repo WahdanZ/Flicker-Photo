@@ -1,6 +1,7 @@
 package com.example.ahmedwahdan.flicker_photo.ui.search.PhotoSearch;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.ahmedwahdan.flicker_photo.R;
 import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
@@ -21,6 +23,7 @@ import com.example.ahmedwahdan.flicker_photo.utils.ScreenUtils;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.Serializable;
 import java.util.List;
 
 import butterknife.BindView;
@@ -43,7 +46,8 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
     RecyclerView photoRecyclerView;
     @BindView(R.id.search_photo_progress)
     ProgressBar progressBar;
-    private OnListPhotoSearchListener mListener;
+    @BindView(R.id.empty_view)
+    TextView emptyView;
     private PhotoAdapter adapter;
     private GridLayoutManager mGridLayoutManager;
     private RecyclerView.OnScrollListener scrollListener;
@@ -52,6 +56,8 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
     private boolean isLoadingMore;
     private int currentPage;
     private PhotoSearchPresenterImp presenter;
+    private int numColumns;
+    private String PHOTO_ITEMS = "photo_fragment";
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -70,6 +76,9 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState != null){
+            photosList = (List<PhotoItem>) savedInstanceState.getSerializable(PHOTO_ITEMS);
+        }
 
     }
     private void init() {
@@ -100,7 +109,9 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
     public  void getGridLayoutManager(){
         // get number of Columns should depend on screen size using ScreenUtils Class
         // it get screen width and  divided it by 180 as 180 fixed image width
-        int numColumns = ScreenUtils.calculateNoOfColumns(getContext());
+         numColumns = ScreenUtils.calculateNoOfColumns(getContext());
+        Log.d(TAG, "numColumns:" + numColumns);
+
         mGridLayoutManager  =  new GridLayoutManager(getActivity(),
                 numColumns);
         mGridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -119,6 +130,7 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showPhotosByTag(List<PhotoItem> photoItems, boolean isLoadingMore) {
+        emptyView.setVisibility(View.INVISIBLE);
         if (adapter == null) {
             Log.d(TAG, "showPhotosByTag: No Adabter");
             // create  instance of recyclerView Adapter
@@ -126,7 +138,7 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
             photoRecyclerView.setAdapter(adapter);
         }
         else {
-            Log.i("SearchActivity", "showPhotoResult : adapter is exist load more or get new search result");
+            Log.i(TAG, "showPhotoResult : adapter is exist load more or get new search result");
             if (isLoadingMore) {
                 Log.d(TAG, "showPhotoResult : Load more photo");
                 adapter.loadMorePhoto(photoItems);
@@ -164,9 +176,18 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
 
     @Override
     public void showErrorMessage(String message) {
+        Log.d(TAG, message);
 
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        getGridLayoutManager();
+        photoRecyclerView.setLayoutManager(mGridLayoutManager);
+        photoRecyclerView.addOnScrollListener(getScrollListener());
+
+    }
 
     private RecyclerView.OnScrollListener getScrollListener() {
 
@@ -207,9 +228,6 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
     public void onResume() {
         super.onResume();
         presenter.onResume();
-        if (currentQuery != null)
-            presenter.getPhotosByTag(currentQuery);
-        recyclerSetup();
     }
 
     @Override
@@ -223,8 +241,10 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
         super.onStop();
     }
 
-public interface  OnListPhotoSearchListener {
-    void onPhotoItemListener(PhotoItem photoItem);
-}
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(PHOTO_ITEMS, (Serializable) photosList);
 
+    }
 }

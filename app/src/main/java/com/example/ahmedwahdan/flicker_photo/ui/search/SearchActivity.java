@@ -12,9 +12,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,11 +20,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.ahmedwahdan.flicker_photo.R;
-import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
 import com.example.ahmedwahdan.flicker_photo.provider.MySuggestionProvider;
 import com.example.ahmedwahdan.flicker_photo.ui.PhotoViewer.PhotoViewer;
 import com.example.ahmedwahdan.flicker_photo.ui.search.GroupSearch.GroupSearchFragmentImp;
@@ -34,9 +30,7 @@ import com.example.ahmedwahdan.flicker_photo.ui.search.PhotoSearch.PhotoSearchFr
 import com.squareup.picasso.Target;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -51,20 +45,10 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
     //***UI****/
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.rv)
-    RecyclerView recyclerView;
-    @BindView(R.id.loading)
-    ProgressBar progressBar;
     @BindView(R.id.fab)
     FloatingActionButton fab;
-    @BindView(R.id.content_view)
-    View contenView;
     @BindView(R.id.coordinator)
     CoordinatorLayout coordinatorLayout;
-    @BindView(R.id.empty_view)
-    TextView emptyView;
-    @BindView(R.id.swiperefresh)
-    SwipeRefreshLayout swipeRefreshLayout;
    @BindView(R.id.tabs)
     TabLayout tabLayout;
     @BindView(R.id.viewpager)
@@ -76,10 +60,8 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
     private SearchView searchView;
 
     private String currentQuery;
-    private RecyclerView.OnScrollListener scrollListener;
-    List<PhotoItem> photosList ;
-    private boolean isLoadingMore;
-    private int currentPage;
+
+
 
 
     @Override
@@ -88,9 +70,7 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-        photosList = new ArrayList<>();
         attachPresenter();
-
 
 
         // check if there is savedInstance  value during change ordination
@@ -106,19 +86,7 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
                 search.expandActionView();
             }
         });
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 
-            @Override
-            public void onRefresh() {
-                Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
-                if (currentQuery != null)
-                    presenter.onSubmitSearch(currentQuery);
-                else
-                if (swipeRefreshLayout.isRefreshing()) {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-        });
         //PicassoHelper.init(this);
         setupViewPager();
         tabLayout.setupWithViewPager(viewPager);
@@ -149,7 +117,7 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
     public boolean onQueryTextSubmit(String query) {
         Log.d(TAG, "onQueryTextSubmit: " + query);
         if (!query.equalsIgnoreCase("")) {
-            isLoadingMore = false;
+           // isLoadingMore = false;
             currentQuery = query;
             SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
                     MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE);
@@ -181,7 +149,6 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putSerializable(PHOTO_ITEMS, (Serializable) photosList);
     }
 
     @Override
@@ -216,12 +183,12 @@ public class SearchActivity extends AppCompatActivity  implements SearchView.OnQ
 
     @Override
     public void showLoading() {
-        progressBar.setVisibility(View.VISIBLE);
+    //    progressBar.setVisibility(View.VISIBLE);
 
     }
     @Override
     public void hideLoading() {
-        progressBar.setVisibility(View.INVISIBLE);
+        //progressBar.setVisibility(View.INVISIBLE);
 
     }
 

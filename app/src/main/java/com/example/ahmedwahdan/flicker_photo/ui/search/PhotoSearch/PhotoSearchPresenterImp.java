@@ -64,9 +64,9 @@ public class PhotoSearchPresenterImp extends SearchPresenterImp implements Searc
     }
 
     @Override
-    public void getPhotosByTag(String tagSearch) {
+    public void getPhotosByTag(String tagSearch, String group_id) {
         currentTag = tagSearch;
-
+        this.group_id = group_id;
         if (!checkInternetConnection()) {
 
             viewTarget.setCurrentQuery(tagSearch);
@@ -91,7 +91,7 @@ public class PhotoSearchPresenterImp extends SearchPresenterImp implements Searc
     @Subscribe
     public void onSubmitSearch(Events.Query.Photo tagSearch) {
         viewTarget.setCurrentQuery(tagSearch.getQuery());
-        getPhotosByTag(tagSearch.getQuery());
+        getPhotosByTag(tagSearch.getQuery(),"");
     }
 
     @Override
@@ -147,7 +147,7 @@ public class PhotoSearchPresenterImp extends SearchPresenterImp implements Searc
     @Subscribe
     public void  onGroupItemClick(Events.GroupItem item){
         group_id = item.getNsid();
-        getPhotosByTag("");
+        getPhotosByTag("",group_id);
     }
 
     @Override

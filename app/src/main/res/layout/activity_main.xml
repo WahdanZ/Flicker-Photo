@@ -42,7 +42,6 @@
         android:src="@drawable/ic_search_white_24dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_anchor="@+id/rv"
         app:layout_behavior="com.example.ahmedwahdan.flicker_photo.ui.helper.ScrollingFABBehavior"
         app:layout_anchorGravity="bottom|end|right"
         android:layout_gravity="bottom|end"
