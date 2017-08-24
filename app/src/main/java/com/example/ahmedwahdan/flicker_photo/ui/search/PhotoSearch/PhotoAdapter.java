@@ -70,50 +70,27 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             final String photoID = FileHelper.getFlickrFilename(item);
             if (!FileHelper.isFileFound(item)){
                 picStatusList.put(item.getId(),PhotoState.PIC_STATUS_LOADING);
-                presenter.downloadPhoto(item, new MVPViewer.PhotoAdapterView() {
-                    @Override
-                    public void onBitmapLoaded(final Bitmap bitmap) {
-                        picStatusList.put(photoID,PhotoState.PIC_STATUS_SAVED);
-                        if (bitmap != null){
-                           // updatePhotoItem(bitmap, (ViewHolder) holder, item);
-                            ((Activity) context).runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    notifyItemChanged(position);
-                                }});
-
-                        }
-            }
-                @Override
-                public void onBitmapFailed() {
-                    picStatusList.put(photoID,PhotoState.PIC_STATUS_FAIL);
-                }
-            });
+                downloadPhoto(position, item, photoID);
             }
             else {
                 picStatusList.put(photoID,PhotoState.PIC_STATUS_SAVED);
                 loadImageFromDisk((ViewHolder) holder, item);
             }
 
-
-
             if(picStatusList.get(photoID) == PhotoState.PIC_STATUS_LOADING){
-                Picasso.with(context)
-                        .load(R.drawable.progress_animation)
-                        .tag(context)
-                        .into(((ViewHolder) holder).photoImage);
+                Picasso.with(context).load(R.drawable.progress_animation).into(((ViewHolder) holder).photoImage);
+
+            }
+            if (picStatusList.get(photoID) == PhotoState.PIC_STATUS_FAIL){
+               Picasso.with(context).load(R.drawable.faild_image).into(((ViewHolder) holder).photoImage);
+                ((ViewHolder) holder).photoImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        downloadPhoto(position, item, photoID);
+                    }
+                });
             }
 
-
-
-//                Log.d(TAG, item.getGetURl());
-//            Picasso.with(context)
-//                    .load(NetworkUtils.getPhotoUrl(item))
-//                    .fit()
-//                    .centerCrop()
-//                    .tag(context)
-//                    .placeholder(R.drawable.progress_animation)
-//                    .into(((ViewHolder) holder).photoImage);
         }
         else if (holder instanceof DividerNumberViewHolder){
             ((DividerNumberViewHolder) holder).pageNumber.setText(""+((position+1)/Const.MAX_NUMBER_PER_REQUEST));
@@ -122,32 +99,36 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     }
 
-    private void updatePhotoItem(final Bitmap bitmap, final ViewHolder holder, final PhotoItem item) {
-        ((Activity) context).runOnUiThread(new Runnable() {
+    private void downloadPhoto(final int position, PhotoItem item, final String photoID) {
+        presenter.downloadPhoto(item, new MVPViewer.PhotoAdapterView() {
             @Override
-            public void run() {
-                //Code for the UiThread
-                holder.photoImage.setImageBitmap(bitmap);
-                holder.photoImage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        presenter.onPhotoItemClicked(FileHelper.getFlickrFilePath(item));
-                    }
-                });
-            }
-        });
+            public void onBitmapLoaded(final Bitmap bitmap) {
+                picStatusList.put(photoID, PhotoState.PIC_STATUS_SAVED);
+                if (bitmap != null){
+                    ((Activity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyItemChanged(position);
+                        }});
+                }
+    }
+        @Override
+        public void onBitmapFailed() {
+            picStatusList.put(photoID,PhotoState.PIC_STATUS_FAIL);
+        }
+    });
     }
 
     private void loadImageFromDisk(ViewHolder holder, PhotoItem item) {
-        final File imageFile = new File(FileHelper.getDefaultSaveFile(), FileHelper.getFlickrFilename(item));
+        final File imageFile = new File(FileHelper.getDefaultSaveDir(), FileHelper.getFlickrFilename(item));
         Log.d(TAG, "imageFile.isFile():" + imageFile.isFile());
         Picasso.with(context)
-           .load(imageFile)
-           .fit().centerCrop()
-           .tag(context)
-                .memoryPolicy(MemoryPolicy.NO_CACHE,MemoryPolicy.NO_STORE)
-           .placeholder(R.drawable.progress_animation)
-           .into(holder.photoImage);
+                .load(imageFile)
+                .fit().centerCrop()
+                .tag(context)
+                .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE)
+                .placeholder(R.drawable.progress_animation)
+                .into(holder.photoImage);
          holder.photoImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

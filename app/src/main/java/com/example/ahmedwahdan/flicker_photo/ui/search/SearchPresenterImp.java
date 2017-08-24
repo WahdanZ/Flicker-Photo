@@ -1,16 +1,10 @@
 package com.example.ahmedwahdan.flicker_photo.ui.search;
 
-import android.content.Context;
-
 import com.example.ahmedwahdan.flicker_photo.App;
 import com.example.ahmedwahdan.flicker_photo.GlobalBus;
-import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
-import com.example.ahmedwahdan.flicker_photo.model.PhotoSearch;
 import com.example.ahmedwahdan.flicker_photo.utils.NetworkUtils;
 
 import org.greenrobot.eventbus.Subscribe;
-
-import java.util.List;
 
 /**
  * Created by ahmedwahdan on 8/10/17.
@@ -19,12 +13,8 @@ import java.util.List;
 public class SearchPresenterImp implements SearchPresenter {
 
     private static String TAG = "SearchPresenter";
-    private  Context context;
-    String tagSearch;
+
     private MVPViewer.SearchActivityView searchView;
-    private boolean loadMore;
-    private List<PhotoItem> photItems;
-    private PhotoSearch photoSearch;
 
     public SearchPresenterImp(MVPViewer.SearchActivityView searchView){
         this.searchView = searchView;

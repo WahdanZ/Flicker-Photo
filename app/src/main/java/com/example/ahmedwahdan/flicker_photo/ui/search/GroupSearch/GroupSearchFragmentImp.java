@@ -94,7 +94,11 @@ public class GroupSearchFragmentImp extends Fragment  implements MVPViewer.Group
     }
 
     @Override
-    public void showGroupByTag(List<GroupItem> groupItems, boolean isLoadingMore) {
+    public void showGroupByTag(final List<GroupItem> groupItems, final boolean isLoadingMore) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
         if (adapter == null) {
             Log.d(TAG, "showPhotosByTag: No Adabter");
             // create  instance of recyclerView Adapter
@@ -112,16 +116,29 @@ public class GroupSearchFragmentImp extends Fragment  implements MVPViewer.Group
                 adapter.updatePhotoList(groupItems);
             }
         }
+            }
+        });
 
     }
     @Override
     public void showLoading() {
-        progressBar.setVisibility(View.VISIBLE);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     @Override
     public void hideLoading() {
-        progressBar.setVisibility(View.GONE);
+       getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override
@@ -134,8 +151,6 @@ public class GroupSearchFragmentImp extends Fragment  implements MVPViewer.Group
     public void showErrorMessage(String message) {
 
     }
-
-
     private RecyclerView.OnScrollListener getScrollListener() {
 
         return new EndlessRecyclerViewScrollListener(linearLayout) {

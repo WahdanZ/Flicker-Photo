@@ -1,9 +1,11 @@
 package com.example.ahmedwahdan.flicker_photo.ui.search.GroupSearch;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.ahmedwahdan.flicker_photo.App;
 import com.example.ahmedwahdan.flicker_photo.GlobalBus;
+import com.example.ahmedwahdan.flicker_photo.db.AppDatabase;
 import com.example.ahmedwahdan.flicker_photo.helper.DataHelper;
 import com.example.ahmedwahdan.flicker_photo.model.GroupItem;
 import com.example.ahmedwahdan.flicker_photo.model.GroupSearch;
@@ -16,18 +18,22 @@ import com.example.ahmedwahdan.flicker_photo.ui.search.SearchPresenterImp;
 
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Created by ahmedwahdan on 8/23/17.
  */
 
 public class GroupSearchPresenterImp extends SearchPresenterImp implements SearchPresenter.GroupSearchPresenter , RequestListener.groupSearchListener {
+    private  AppDatabase db;
     private MVPViewer.GroupSearchFragment  fragment;
     MVPViewer.GroupSearchFragment viewTarget;
 
     private boolean loadMore;
     private List<GroupItem> groupItems;
+    private ArrayList<GroupItem> groupsItems;
     private GroupSearch groupSearch;
     private String TAG  ="GroupSearchPresenter";
     private String currentTag;
@@ -36,15 +42,15 @@ public class GroupSearchPresenterImp extends SearchPresenterImp implements Searc
     public GroupSearchPresenterImp(MVPViewer.GroupSearchFragment  photoSearchFragment) {
         super((MVPViewer.SearchActivityView) photoSearchFragment.getContext());
         this.viewTarget = photoSearchFragment;
+        db = App.getAppDatabase();
+        groupsItems = new ArrayList<>();
     }
 
     @Override
     public void getGroupByTag(String tag) {
+        getGroupItemFromDB(tag);
         if (!checkInternetConnection()) {
-            groupSearch = DataHelper.getGroupSearchFromSharedPreference(App.getInstance().getContext(),tag);
-            if (groupSearch != null)
-                onSearchResultOffline(groupSearch);
-            Log.d("GroupSearchPresenterImp", "groupSearches.size():" + groupSearch.getGroups().getGroup().size());
+            return;
         }else {
         loadMore = false;
         viewTarget.setCurrentQuery(tag);
@@ -54,8 +60,9 @@ public class GroupSearchPresenterImp extends SearchPresenterImp implements Searc
     }
 
     @Override
-    public void loadMoreGroups(String query , int page) {
+    public void loadMoreGroups(final String query , int page) {
         if (!checkInternetConnection()) {
+            getGroupItemFromDB(query);
             return;
         }
         loadMore = true;
@@ -64,6 +71,7 @@ public class GroupSearchPresenterImp extends SearchPresenterImp implements Searc
         GroupSearchRequest.index(query, TAG, page, this);
 
     }
+
 
     @Override
     public void onGroupItemClick(String nsid ,String groupName) {
@@ -92,21 +100,50 @@ public class GroupSearchPresenterImp extends SearchPresenterImp implements Searc
     @Override
     public void onSearchResult(GroupSearch groupSearch) {
         if (groupSearch != null) {
-        groupItems = groupSearch.getGroups().getGroup();
+            groupItems = groupSearch.getGroups().getGroup();
             DataHelper.saveGOONDateToSharedPreference(App.getInstance().getContext(),groupSearch,currentTag);
-        viewTarget.hideLoading();
-        viewTarget.showGroupByTag(groupItems , loadMore);
+            dbSave(groupItems);
+            viewTarget.hideLoading();
+             viewTarget.showGroupByTag(groupItems , loadMore);
         }
     }
-    public void onSearchResultOffline(GroupSearch groupSearch) {
-        if (groupSearch != null) {
-            groupItems = groupSearch.getGroups().getGroup();
+    private void getGroupItemFromDB(final String query) {
+        Log.d(TAG, "getGroupItemFromDB: " + query);
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                Log.d("GroupSearchPresenter", "" + db.myDao().loadGroupItemsByTag(query).size());
+                onSearchResultOffline(db.myDao().loadGroupItemsByTag(query));
+                return null;
+            }
+        }.execute();
+
+    }
+    public void dbSave(final List<GroupItem> groupItems) {
+        groupsItems.clear();
+        for (GroupItem groupItem : groupItems) {
+            groupItem.setGroupSearch(currentTag);
+            groupsItems.add(groupItem);
+
+        }
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+               db.myDao().insertGroups(groupsItems);
+                return null;
+            }
+        }.execute();
+    }
+
+    public void onSearchResultOffline(List<GroupItem> groupItems) {
+        if (groupItems != null) {
             viewTarget.hideLoading();
             viewTarget.showGroupByTag(groupItems , loadMore);
         }
     }
     @Override
     public void onError(String error) {
+        Log.d("GroupSearchPresenterImp", error);
 
     }
 }

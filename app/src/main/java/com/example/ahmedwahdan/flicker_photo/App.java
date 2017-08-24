@@ -1,12 +1,14 @@
 package com.example.ahmedwahdan.flicker_photo;
 
 import android.app.Application;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.example.ahmedwahdan.flicker_photo.db.AppDatabase;
 import com.example.ahmedwahdan.flicker_photo.helper.FileHelper;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -23,6 +25,7 @@ public class App  extends Application{
     private Gson mGson;
     private Picasso picasso;
     private Context context;
+    private static AppDatabase db;
 
     @Override
     public void onCreate() {
@@ -36,9 +39,14 @@ public class App  extends Application{
         Log.d("App", "FileHelper.cachesFiles:" + FileHelper.cachesFiles);
         Picasso.setSingletonInstance(picasso);
         this.context = this;
+        db = Room.databaseBuilder(this, AppDatabase.class, "cache-database")
+                        // allow queries on the main thread.
+                        // Don't do this on a real app! See PersistenceBasicSample for an example.
+                        .build();
 
 
     }
+
 
     public static synchronized App getInstance() {
         return mAppController;
@@ -77,6 +85,13 @@ public class App  extends Application{
         }
 
         return mRequestQueue;
+    }
+    public static synchronized AppDatabase getAppDatabase() {
+        return db;
+    }
+
+    public static void destroyInstance() {
+        db = null;
     }
 
 }

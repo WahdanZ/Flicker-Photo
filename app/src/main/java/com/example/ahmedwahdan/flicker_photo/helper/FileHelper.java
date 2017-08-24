@@ -39,6 +39,7 @@ public class FileHelper {
         return dir;
     }
 
+
     public static File getImagesDir(){
         File dir = new File(getAppExternalDir(), "pictures");
         if(!dir.exists()){
@@ -50,12 +51,12 @@ public class FileHelper {
         return photoItem.getId()+"_"+photoItem.getSecret()+".jpg";
     }
 
-    public static File getDefaultSaveFile() {
+    public static File getDefaultSaveDir() {
         return getAppCacheDir();
     }
     public static ArrayList<String> getCacheFiles(){
         ArrayList<String> result = new ArrayList<String>(); //ArrayList cause you don't know how many files there is
-        File folder = new File(getDefaultSaveFile().getAbsolutePath()); //This is just to cast to a File type since you pass it as a String
+        File folder = new File(getDefaultSaveDir().getAbsolutePath()); //This is just to cast to a File type since you pass it as a String
         File[] filesInFolder = folder.listFiles(); // This returns all the folders and files in your path
         for (File file : filesInFolder) { //For each of the entries do:
             if (!file.isDirectory()) { //check that it's not a dir

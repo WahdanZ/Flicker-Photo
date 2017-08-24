@@ -1,19 +1,38 @@
 package com.example.ahmedwahdan.flicker_photo.model;
 
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
+
 import java.io.Serializable;
 
+import static com.example.ahmedwahdan.flicker_photo.model.PhotoItem.Offline;
+import static com.example.ahmedwahdan.flicker_photo.model.PhotoItem.PHOTO_TAG;
+import static com.example.ahmedwahdan.flicker_photo.model.PhotoItem.TABLENAME;
+
+
+@Entity(tableName = TABLENAME , indices = {@Index(value = {PHOTO_TAG , Offline})})
 public class PhotoItem  implements Serializable{
+	public static final String TABLENAME = "photo_item";
+	public static final String PHOTO_TAG = "photo_tag";
+	public static final String Offline = "offline";
+	@ColumnInfo(name = PHOTO_TAG)
+	private String tag ;
 	private String owner;
 	private String server;
 	private int ispublic;
 	private int isfriend;
 	private int farm;
+	@PrimaryKey
 	private String id;
 	private String secret;
 	private String title;
 	private int isfamily;
 	private String getURl;
+	@ColumnInfo(name = Offline)
+	private boolean isOffline;
 
 	public void setOwner(String owner){
 		this.owner = owner;
@@ -89,6 +108,27 @@ public class PhotoItem  implements Serializable{
 	public String getGetURl(){
 		return  "https://farm"+farm+".staticflickr.com/"+server+"/"+id+"_"+secret+".jpg";
 	}
+
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+
+	public boolean isOffline() {
+		return isOffline;
+	}
+
+	public void setOffline(boolean offline) {
+		isOffline = offline;
+	}
+
+	public void setGetURl(String getURl) {
+		this.getURl = getURl;
+	}
+
 	@Override
  	public String toString(){
 		return 

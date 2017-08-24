@@ -172,7 +172,7 @@ public class GSONSharedPreferences {
 
 
     /**  get json object **/
-    public JSONObject getJsonObject(Object object) {
+    public JSONObject getJsonObject(Class<?> object) {
         String val = mSharedPrefs.getString(object.getClass().getCanonicalName(), "");
         JSONObject jsonObject = null;
         object = object.getClass();

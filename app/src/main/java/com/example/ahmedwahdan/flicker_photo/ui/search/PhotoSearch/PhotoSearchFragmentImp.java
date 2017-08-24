@@ -20,9 +20,6 @@ import com.example.ahmedwahdan.flicker_photo.ui.helper.EndlessRecyclerViewScroll
 import com.example.ahmedwahdan.flicker_photo.ui.search.MVPViewer;
 import com.example.ahmedwahdan.flicker_photo.utils.ScreenUtils;
 
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -37,11 +34,7 @@ import butterknife.ButterKnife;
  */
 public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoSearchFragment {
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String TAG = "PhotoSearchFragmentImp";
-    // TODO: Customize parameters
-    private int mColumnCount = 3;
     @BindView(R.id.rv_photo)
     RecyclerView photoRecyclerView;
     @BindView(R.id.search_photo_progress)
@@ -128,31 +121,37 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
             }
         });
     }
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void showPhotosByTag(List<PhotoItem> photoItems, boolean isLoadingMore) {
-        emptyView.setVisibility(View.INVISIBLE);
-        if (adapter == null) {
-            Log.d(TAG, "showPhotosByTag: No Adabter");
-            // create  instance of recyclerView Adapter
-            adapter = new PhotoAdapter( photoItems, getContext() , presenter);
-            photoRecyclerView.setAdapter(adapter);
-        }
-        else {
-            Log.i(TAG, "showPhotoResult : adapter is exist load more or get new search result");
-            if (isLoadingMore) {
-                Log.d(TAG, "showPhotoResult : Load more photo");
-                adapter.loadMorePhoto(photoItems);
-            } else {
-                Log.d(TAG, "showPhotoResult : Display new search result " + photoItems);
-                photoRecyclerView.removeOnScrollListener(scrollListener);
-                photoRecyclerView.addOnScrollListener(getScrollListener());
-                photosList = photoItems;
-                adapter.updatePhotoList(photoItems);
+    public void showPhotosByTag(final List<PhotoItem> photoItems, final boolean isLoadingMore) {
+        Log.d(TAG, "photoItems:" + photoItems.size());
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                emptyView.setVisibility(View.INVISIBLE);
+                if (adapter == null) {
+                    Log.d(TAG, "showPhotosByTag: No Adabter");
+                    // create  instance of recyclerView Adapter
+                    adapter = new PhotoAdapter( photoItems, getContext() , presenter);
+                    photoRecyclerView.setAdapter(adapter);
+                }
+                else {
+                    Log.i(TAG, "showPhotoResult : adapter is exist load more or get new search result");
+                    if (isLoadingMore) {
+                        Log.d(TAG, "showPhotoResult : Load more photo");
+                        adapter.loadMorePhoto(photoItems);
+                    } else {
+                        Log.d(TAG, "showPhotoResult : Display new search result " + photoItems);
+                        photoRecyclerView.removeOnScrollListener(scrollListener);
+                        photoRecyclerView.addOnScrollListener(getScrollListener());
+                        photosList = photoItems;
+                        adapter.updatePhotoList(photoItems);
+                    }
+                    //  photoItemPicassoDownloader(photoItems);
+
+
+                }
             }
-            //  photoItemPicassoDownloader(photoItems);
+        });
 
-
-        }
 
     }
 
@@ -160,14 +159,24 @@ public class PhotoSearchFragmentImp extends Fragment implements MVPViewer.PhotoS
 
     @Override
     public void showLoading() {
-        progressBar.setVisibility(View.VISIBLE);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     @Override
     public void hideLoading() {
-        progressBar.setVisibility(View.GONE);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
     }
-
     @Override
     public void setCurrentQuery(String query) {
         currentQuery = query;

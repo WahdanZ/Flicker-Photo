@@ -7,6 +7,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.example.ahmedwahdan.flicker_photo.App;
+import com.example.ahmedwahdan.flicker_photo.helper.SaveFileAsync;
+import com.example.ahmedwahdan.flicker_photo.model.PhotoItem;
 
 /**
  * Created by ahmedwahdan on 8/20/17.
@@ -15,14 +17,14 @@ import com.example.ahmedwahdan.flicker_photo.App;
 public class ImageRequestDownloader {
     private static final String TAG = ImageRequestDownloader.class.getSimpleName();
     private static App mAppController = App.getInstance();
-    public static void index(String imageUrl , final String fileName  , final RequestListener.imageDownloadListener listener) {
+    public static void index(String imageUrl , final PhotoItem item  , final RequestListener.imageDownloadListener listener) {
         // Initialize a new ImageRequest
         ImageRequest imageRequest = new ImageRequest(
                 imageUrl, // Image URL
                 new Response.Listener<Bitmap>() { // Bitmap listener
                     @Override
                     public void onResponse(Bitmap bitmap) {
-                        new SaveFileAsync(bitmap,fileName,listener).execute();
+                        new SaveFileAsync(bitmap,item,listener).execute();
                     }
                 },
                 0, // Image width

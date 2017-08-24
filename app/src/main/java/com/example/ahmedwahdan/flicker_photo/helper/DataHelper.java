@@ -14,8 +14,7 @@ import com.example.ahmedwahdan.flicker_photo.model.PhotoSearch;
 public class DataHelper {
     public static final String SP_NAME = "DataHelper";
     private static GSONSharedPreferences gsonSharedPreferences;
-    private static PhotoSearch photoSearch;
-    private static GroupSearch groupSearch;
+
 
     public static void saveGOONDateToSharedPreference(Context context , PhotoSearch photoSearch , String tag){
 //        PhotoSearch search = getPhotoSearchFromSharedPreference(context,tag);
